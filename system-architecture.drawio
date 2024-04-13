@@ -1,9 +1,36 @@
-<mxfile host="app.diagrams.net" modified="2024-04-13T13:39:28.505Z" agent="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36 Edg/123.0.0.0" version="24.2.5" etag="E6M4QtK12eeGefBHdiEd" type="github">
+<mxfile host="app.diagrams.net" modified="2024-04-13T13:44:06.216Z" agent="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36 Edg/123.0.0.0" etag="eist8Tf15woFu_HgHfE6" version="24.2.5" type="github">
   <diagram name="Strona-1" id="l0YmvA27g55z5bew2UwF">
-    <mxGraphModel>
+    <mxGraphModel dx="2199" dy="1275" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
+        <mxCell id="u6yLAme0Pw-vtLDDKEOo-2" value="" style="swimlane;startSize=0;" vertex="1" parent="1">
+          <mxGeometry x="40" y="40" width="400" height="360" as="geometry" />
+        </mxCell>
+        <mxCell id="u6yLAme0Pw-vtLDDKEOo-7" value="Mongo DB" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=15;" vertex="1" parent="u6yLAme0Pw-vtLDDKEOo-2">
+          <mxGeometry x="20" y="20" width="110" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="u6yLAme0Pw-vtLDDKEOo-8" value="- Dane użytkowników&lt;div&gt;- Dane dotyczące kontraktów&lt;/div&gt;&lt;div&gt;- Dane dotyczące ankiet&lt;/div&gt;" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="u6yLAme0Pw-vtLDDKEOo-2">
+          <mxGeometry x="120" y="60" width="250" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="u6yLAme0Pw-vtLDDKEOo-9" value="CRUD server" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="u6yLAme0Pw-vtLDDKEOo-2">
+          <mxGeometry x="30" y="220" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="u6yLAme0Pw-vtLDDKEOo-10" value="Authentyfikacja&lt;div&gt;CRUD z mongoDB&lt;/div&gt;" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="u6yLAme0Pw-vtLDDKEOo-2">
+          <mxGeometry x="180" y="220" width="150" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="u6yLAme0Pw-vtLDDKEOo-3" value="Backend" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" vertex="1" parent="1">
+          <mxGeometry x="205" y="10" width="70" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="u6yLAme0Pw-vtLDDKEOo-4" value="" style="swimlane;startSize=0;" vertex="1" parent="1">
+          <mxGeometry x="40" y="440" width="400" height="360" as="geometry" />
+        </mxCell>
+        <mxCell id="u6yLAme0Pw-vtLDDKEOo-13" value="MetaMask wallet" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="u6yLAme0Pw-vtLDDKEOo-4">
+          <mxGeometry x="30" y="40" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="u6yLAme0Pw-vtLDDKEOo-12" value="Frontend" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="210" y="410" width="60" height="30" as="geometry" />
+        </mxCell>
       </root>
     </mxGraphModel>
   </diagram>
