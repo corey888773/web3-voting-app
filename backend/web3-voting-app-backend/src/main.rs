@@ -1,43 +1,39 @@
-use axum::{
-    extract::{Path, Query, State}, http::StatusCode, response::IntoResponse, routing::{get, patch, post}, Json, Router
-};
-
-use serde::{Deserialize, Serialize};
-use serde_json::json;
-
-use mongodb::{Client, options::ClientOptions};
-
+#[allow(unused)]
+use axum::middleware;
+use axum::routing::get;
+use axum::Router;
 use tokio::net::TcpListener;
+use std::sync::Arc;
+
+use crate::models::db::DbContext;
+use crate::utils::error::{Error, Result};
+use crate::api:: {auth, middleware::main_response_mapper};
+use crate::app_state::AppState;
+
+mod models;
+mod api;
+mod app_state;
+mod utils;
 
 #[tokio::main]
 async fn main(){
-    let mut client_options = ClientOptions::parse("mongodb://root:password@localhost:27017").await.expect("Could not parse client options");
-    let client = Client::with_options(client_options).expect("Could not create client");
+    
+    let db = DbContext::new("mongodb://root:password@localhost:27017").await.expect("Could not connect to MongoDB");
     println!("Connected to MongoDB");
 
-    let listener = TcpListener::bind("127.0.0.1:8080").await.expect("Could not create listener");
+    let app_state = AppState::new(db.clone()).await.expect("Could not create app state");
 
-    let app = Router::new()
-        .route("/hello", get(|| async { "Hello, World!" }))
-        .route("/auth/nonce", post(auth_nonce));
+    let listener = TcpListener::bind("127.0.0.1:8081").await.expect("Could not create listener");
 
-    println!("Server running on port 8080");
+    let app = app(Arc::new(app_state));
+
+    println!("Server running on port 8081");
     axum::serve(listener, app).await.expect("Server failed to start");
 }
 
-#[derive(Debug, Deserialize)]
-struct AuthNonceRequest {
-    publicAddress: String,
-}
-
-async fn auth_nonce(Query(params): Query<AuthNonceRequest>) -> impl IntoResponse {
-    let nonce = "123456";
-
-    println!("Auth nonce request for public address: {}", params.publicAddress);
-
-    let response = json!({
-        "nonce": nonce,
-    }); 
-
-    Json(response)
+pub fn app(app_state: Arc<AppState>) -> Router {
+    Router::new()
+        .route("/hello", get(|| async { "Hello, World!" }))
+        .merge(auth::routes(app_state.clone()))
+        .layer(middleware::map_response(main_response_mapper))
 }
