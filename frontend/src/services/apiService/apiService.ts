@@ -1,53 +1,70 @@
-import { ErrorResponse } from './responses'
+import axios from 'axios'
 
 const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL
 
 export const apiService = {
     async register(data: { mail: string; username: string; publicAddress: string }) {
-        const response = await fetch(`${backendUrl}/api/auth/register`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(data),
-        })
+        try {
+            const response = await axios.post(`${backendUrl}/api/auth/register`, data, {
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            })
 
-        if (!response.ok) {
+            console.log(response)
+            return response.data
+        } catch (error) {
             throw new Error('Network response was not ok')
         }
-
-        return response.json()
     },
 
     async login(data: { publicAddress: string; signedMessage: string; nonce: string }) {
-        const response = await fetch(`${backendUrl}/api/auth/login`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(data),
-        })
+        try {
+            const response = await axios.post(`${backendUrl}/api/auth/login`, data, {
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                withCredentials: true,
+            })
 
-        console.log(response)
-
-        if (!response.ok) {
-            return response.json() as Promise<ErrorResponse>
+            console.log(response)
+            return response.data
+        } catch (error: any) {
+            throw new Error('Network response was not ok ' + error.message)
         }
-
-        return response.json()
     },
 
     async nonce(data: { publicAddress: string }) {
-        const response = await fetch(`${backendUrl}/api/auth/nonce`, {
+        try {
+            const response = await axios.post(`${backendUrl}/api/auth/nonce`, data, {
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            })
+
+            console.log(response)
+
+            return response.data
+        } catch (error) {
+            throw new Error('Network response was not ok')
+        }
+    },
+
+    async refreshJwt(data: { publicAddress: string }, headers: any) {
+        const response = await fetch(`${backendUrl}/api/jwt/refresh`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
+                ...headers,
             },
             body: JSON.stringify(data),
+            credentials: 'include',
         })
 
+        console.log(JSON.stringify(data))
+
         if (!response.ok) {
-            return response.json() as Promise<ErrorResponse>
+            throw new Error('Network response was not ok ' + response.statusText)
         }
 
         return response.json()

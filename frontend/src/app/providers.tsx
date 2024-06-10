@@ -22,7 +22,7 @@ const connectors = connectorsForWallets(
     },
 )
 
-const config = createConfig({
+export const config = createConfig({
     chains: [mainnet, sepolia, hardhat],
     connectors,
     ssr: true,
