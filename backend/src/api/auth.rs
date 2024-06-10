@@ -4,8 +4,10 @@ use axum::extract::State;
 use axum::http::StatusCode;
 use axum::response::IntoResponse;
 use axum::{routing::post, Json, Router};
+use axum_extra::extract::cookie::Cookie;
+use axum_extra::extract::CookieJar;
 use ethers::types::H160;
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
 
 use crate::app_state::AppState;
@@ -19,7 +21,8 @@ pub fn routes(state: Arc<AppState>) -> Router{
         .route("/nonce", post(nonce))
         .route("/login", post(login))
         .route("/register", post(register))
-        .with_state(state);
+        .with_state(state)
+        .with_state(CookieJar::default());
 
     Router::new().nest("/auth", auth_routes)
 }
@@ -30,11 +33,19 @@ struct LoginRequest{
     #[serde(rename = "signedMessage")] signed_message: String,
     #[serde(rename = "nonce")] nonce: String,
 }
-async fn login(state: State<Arc<AppState>>, req: Json<LoginRequest>) -> impl IntoResponse{
-    println!("->> {:<20} - {:?}", "api/login", req);
+
+#[derive(Debug, Deserialize, Serialize)]
+struct LoginResponse{
+    #[serde(rename = "publicAddress")] public_address: String,
+    #[serde(rename = "username")] username: String,
+    #[serde(rename = "mail")] mail: String,
+    #[serde(rename = "jwt")] jwt: String,
+    #[serde(rename = "refreshToken")] refresh_token: String,
+}
+async fn login(state: State<Arc<AppState>>, cookie_jar: CookieJar, req: Json<LoginRequest>) -> impl IntoResponse{
+    println!("->> {:<20} - {:?}", "api/auth/login", req);
 
     let user = state.db.find_user_by_public_address(&req.public_address).await?;
-        
     if user.is_none(){
         return Err(Error::LoginFail(StatusCode::BAD_REQUEST, "User not found".to_string()));
     }
@@ -47,17 +58,46 @@ async fn login(state: State<Arc<AppState>>, req: Json<LoginRequest>) -> impl Int
         return Err(Error::SignatureVerificationFail(StatusCode::BAD_REQUEST, "Address does not match signature".to_string()));
     }
 
-    Ok(success())
+    let user = user.unwrap();
+    if user.nonce != req.nonce {
+        return Err(Error::SignatureVerificationFail(StatusCode::BAD_REQUEST, "Nonce does not match".to_string()));
+    }
+
+    let jwt_claims = crate::utils::jwt::Claims{
+        public_address: user.public_address.clone(),
+        exp: (chrono::Utc::now() + chrono::Duration::minutes(1)).timestamp(),
+    };
+    let jwt = crate::utils::jwt::create_jwt(&jwt_claims);
+    let jwt_cookie = Cookie::build(("jwt", jwt.clone())).path("/");
+
+    let refresh_token_claims = crate::utils::jwt::Claims{
+        public_address: user.public_address.clone(),
+        exp: (chrono::Utc::now() + chrono::Duration::days(1)).timestamp(),
+    };
+    let refresh_token = crate::utils::jwt::create_jwt(&refresh_token_claims);
+    let refresh_cookie = Cookie::build(("refresh", refresh_token.clone())).path("/");
+
+    let jar = cookie_jar.add(jwt_cookie).add(refresh_cookie);
+
+    let response = LoginResponse{
+        public_address: user.public_address.clone(),
+        username: user.username.clone(),
+        mail: user.mail.clone(),
+        jwt: jwt.clone(),
+        refresh_token: refresh_token.clone(),
+    };
+ 
+    Ok((StatusCode::OK, jar, Json(response)))
 }
 
 #[derive(Debug, Deserialize)]
 struct RegisterRequest{
-    mail: String,
-    username: String,
+    #[serde(rename = "mail")] mail: String,
+    #[serde(rename = "username")] username: String,
     #[serde(rename = "publicAddress")] public_address: String,
 }
 
-async fn register(state: State<Arc<AppState>>, req: Json<RegisterRequest>) -> impl IntoResponse{
+async fn register(state: State<Arc<AppState>>, cookie_jar: CookieJar, req: Json<RegisterRequest>) -> impl IntoResponse{
     println!("->> {:<20} - {:?}", "api/auth/register", req);
 
     let user = state.db.find_user_by_public_address(&req.public_address).await?;
@@ -74,7 +114,23 @@ async fn register(state: State<Arc<AppState>>, req: Json<RegisterRequest>) -> im
 
     state.db.insert_user(user.clone()).await?;
 
-    Ok((StatusCode::CREATED, Json(user)))
+    let jwt_claims = crate::utils::jwt::Claims{
+        public_address: user.public_address.clone(),
+        exp: (chrono::Utc::now() + chrono::Duration::minutes(1)).timestamp(),
+    };
+    let jwt = crate::utils::jwt::create_jwt(&jwt_claims);
+    let jwt_cookie = Cookie::build(("jwt", jwt.clone())).path("/");
+
+    let refresh_token_claims = crate::utils::jwt::Claims{
+        public_address: user.public_address.clone(),
+        exp: (chrono::Utc::now() + chrono::Duration::days(1)).timestamp(),
+    };
+    let refresh_token = crate::utils::jwt::create_jwt(&refresh_token_claims);
+    let refresh_cookie = Cookie::build(("refresh", refresh_token.clone())).path("/");
+
+    let jar = cookie_jar.add(jwt_cookie).add(refresh_cookie);
+
+    Ok((StatusCode::CREATED, jar , Json(user)))
 }
 
 
@@ -82,9 +138,9 @@ async fn register(state: State<Arc<AppState>>, req: Json<RegisterRequest>) -> im
 struct NonceRequest{
     #[serde(rename = "publicAddress")] public_address: String,
 }
-async fn nonce(state: State<Arc<AppState>>, req: Json<NonceRequest>) -> impl IntoResponse{
+async fn nonce(state: State<Arc<AppState>>, cookie_jar: CookieJar, req: Json<NonceRequest>) -> impl IntoResponse{
     println!("->> {:<20} - {:?}", "api/auth/nonce", req);
-    
+
     let user = state.db.find_user_by_public_address(&req.public_address).await?;
     if user.is_none(){
         return Err(Error::LoginFail(StatusCode::BAD_REQUEST, "User not found".to_string()));
