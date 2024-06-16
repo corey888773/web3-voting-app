@@ -8,7 +8,12 @@ pub enum Error {
     LoginFail(StatusCode, String),
     MongoError(StatusCode, String),
     SignatureVerificationFail(StatusCode, String),
+    DatabaseError(StatusCode, String),
+    JwtVerificationFail(StatusCode, String),
+    Unauthorized,
+    NotFound(StatusCode, String),
 }
+
 impl IntoResponse for Error {
     fn into_response(self) -> Response {
         println!("->> {:<20} - {:?}", "Error", self);
@@ -46,6 +51,10 @@ impl Error {
 
     fn extract_fields(&self) -> (&StatusCode, &str) {
         match self {
+            Error::Unauthorized => (&StatusCode::UNAUTHORIZED, "Unauthorized"),
+            Error::NotFound(status, msg) => (status, msg),
+            Error::JwtVerificationFail(status, msg) => (status, msg),
+            Error::DatabaseError(status, msg) => (status, msg),
             Error::LoginFail(status, msg) => (status, msg),
             Error::MongoError(status, msg) => (status, msg),
             Error::SignatureVerificationFail(status, msg) => (status, msg),

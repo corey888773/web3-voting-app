@@ -7,8 +7,8 @@ error PollSystem__PollEnded();
 error PollSystem__AlreadyVoted();
 error PollSystem__InvalidAnswersCount();
 error PollSystem__InvalidOption();
-error PollSystem__NotYetEnded();
 error PollSystem__AlreadyLocked();
+error PollSystem__YouAreNotTheCreator();
 
 contract PollSystem {
     // Types
@@ -18,6 +18,7 @@ contract PollSystem {
     }
 
     struct Poll {
+        bytes32 id;
         string question;
         string[] options;
         uint64 possibleAnswers;
@@ -25,28 +26,35 @@ contract PollSystem {
         mapping(uint256 => uint256) votes;
         uint256 endTime;
         State state;
+        address creator;
     }
 
     // State Variables
-    Poll[] public m_polls;
+    bytes32[] public s_pollIds;
+    mapping(bytes32 => Poll) public s_polls;
 
     // Functions
     function createPoll(
+        bytes32 id,
         string memory question,
         string[] memory options,
         uint64 possibleAnswers,
         uint256 duration
     ) public {
-        Poll storage newPoll = m_polls.push();
+        Poll storage newPoll = s_polls[id];
+        s_pollIds.push(id);
+
+        newPoll.id = id;
         newPoll.question = question;
         newPoll.options = options;
         newPoll.possibleAnswers = possibleAnswers;
         newPoll.endTime = block.timestamp + duration;
         newPoll.state = State.OPEN;
+        newPoll.creator = msg.sender;
     }
 
-    function vote(uint256 pollIndex, uint256[] memory chosenOptions) public {
-        Poll storage poll = m_polls[pollIndex];
+    function vote(bytes32 pollId, uint256[] memory chosenOptions) public {
+        Poll storage poll = s_polls[pollId];
 
         if (poll.state != State.OPEN) revert PollSystem__PollLocked();
         if (block.timestamp >= poll.endTime) revert PollSystem__PollEnded();
@@ -62,16 +70,16 @@ contract PollSystem {
         poll.hasVoted[msg.sender] = true;
     }
 
-    function lockPoll(uint256 pollIndex) public {
-        Poll storage poll = m_polls[pollIndex];
+    function lockPoll(bytes32 pollId) public {
+        Poll storage poll = s_polls[pollId];
+        if (msg.sender != poll.creator) revert PollSystem__YouAreNotTheCreator();
         if (poll.state == State.LOCKED) revert PollSystem__AlreadyLocked();
-        if (block.timestamp <= poll.endTime) revert PollSystem__NotYetEnded();
         poll.state = State.LOCKED;
     }
 
     // Views
-    function getPollResults(uint256 pollIndex) public view returns (uint256[] memory) {
-        Poll storage poll = m_polls[pollIndex];
+    function getPollResults(bytes32 pollId) public view returns (uint256[] memory) {
+        Poll storage poll = s_polls[pollId];
         uint256[] memory results = new uint256[](poll.options.length);
         for (uint256 i = 0; i < poll.options.length; i++) {
             results[i] = poll.votes[i];
@@ -80,19 +88,43 @@ contract PollSystem {
         return results;
     }
 
-    function getOpenPolls() public view returns (uint256[] memory) {
+    function getMyPolls(address userAddress) public view returns (bytes32[] memory) {
+        uint256 myPollsCount = 0;
+        for (uint256 i = 0; i < s_pollIds.length; i++) {
+            bytes32 pollId = s_pollIds[i];
+            if (s_polls[pollId].creator == userAddress) {
+                myPollsCount++;
+            }
+        }
+
+        bytes32[] memory myPolls = new bytes32[](myPollsCount);
+        uint256 index = 0;
+        for (uint256 i = 0; i < s_pollIds.length; i++) {
+            bytes32 pollId = s_pollIds[i];
+            if (s_polls[pollId].creator == userAddress) {
+                myPolls[index] = pollId;
+                index++;
+            }
+        }
+
+        return myPolls;
+    }
+
+    function getOpenPolls() public view returns (bytes32[] memory) {
         uint256 openPollsCount = 0;
-        for (uint256 i = 0; i < m_polls.length; i++) {
-            if (m_polls[i].state == State.OPEN) {
+        for (uint256 i = 0; i < s_pollIds.length; i++) {
+            bytes32 pollId = s_pollIds[i];
+            if (s_polls[pollId].state == State.OPEN) {
                 openPollsCount++;
             }
         }
 
-        uint256[] memory openPolls = new uint256[](openPollsCount);
+        bytes32[] memory openPolls = new bytes32[](openPollsCount);
         uint256 index = 0;
-        for (uint256 i = 0; i < m_polls.length; i++) {
-            if (m_polls[i].state == State.OPEN) {
-                openPolls[index] = i;
+        for (uint256 i = 0; i < s_pollIds.length; i++) {
+            bytes32 pollId = s_pollIds[i];
+            if (s_polls[pollId].state == State.OPEN) {
+                openPolls[index] = pollId;
                 index++;
             }
         }
@@ -100,16 +132,18 @@ contract PollSystem {
         return openPolls;
     }
 
-    function hasVoted(uint256 pollIndex, address voter) public view returns (bool) {
-        return m_polls[pollIndex].hasVoted[voter];
+    function hasVoted(bytes32 pollId, address voter) public view returns (bool) {
+        return s_polls[pollId].hasVoted[voter];
     }
 
-    function getPollState(uint256 pollIndex) public view returns (State) {
-        return m_polls[pollIndex].state;
+    function getPollState(bytes32 pollId) public view returns (State) {
+        return s_polls[pollId].state;
     }
 
-    function getPoll(uint256 pollIndex) public view returns (string memory, string[] memory, uint64, uint256, State) {
-        Poll storage poll = m_polls[pollIndex];
-        return (poll.question, poll.options, poll.possibleAnswers, poll.endTime, poll.state);
+    function getPoll(
+        bytes32 pollId
+    ) public view returns (bytes32, string memory, string[] memory, uint64, uint256, State, address) {
+        Poll storage poll = s_polls[pollId];
+        return (poll.id, poll.question, poll.options, poll.possibleAnswers, poll.endTime, poll.state, poll.creator);
     }
 }

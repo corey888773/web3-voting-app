@@ -21,7 +21,7 @@ export default function RegisterComponent() {
                 router.push('/poll/home')
             })
             .catch((error) => {
-                console.error(error)
+                alert('Error: ' + error.message)
             })
     }
 

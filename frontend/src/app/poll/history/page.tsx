@@ -1,8 +1,7 @@
 'use client'
 
-import CreatePoll from '@/components/createPoll'
 import Header from '@/components/header'
-import PollTable from '@/components/pollTable'
+import HistoryTable from '@/components/historyTable'
 import WalletConnectedWrapper from '@/components/walletConnectedWrapper'
 
 export default function Home() {
@@ -11,7 +10,7 @@ export default function Home() {
             <div>
                 <WalletConnectedWrapper>
                     <Header />
-                    <PollTable />
+                    <HistoryTable />
                 </WalletConnectedWrapper>
             </div>
         </>

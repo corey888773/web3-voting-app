@@ -10,9 +10,3 @@ services:
       MONGO_INITDB_ROOT_PASSWORD: password
     ports:
       - "27017:27017"
-    volumes:
-      - ./data:/data/db
-
-volumes:
-  data:
-    driver: local

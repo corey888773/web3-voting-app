@@ -81,4 +81,64 @@ export const apiService = {
 
         return response
     },
+
+    async vote(data: { contractAddress: string; pollId: string; answers: number[]; transactionHash: string }) {
+        const response = await fetch(`${backendUrl}/api/polls/vote`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(data),
+            credentials: 'include',
+        })
+
+        if (!response.ok) {
+            throw new Error('Network response was not ok')
+        }
+
+        return response
+    },
+
+    async getUserVotes(data: { contractAddress: string }) {
+        const response = await fetch(`${backendUrl}/api/polls/votes`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(data),
+            credentials: 'include',
+        })
+
+        if (!response.ok) {
+            throw new Error('Network response was not ok')
+        }
+
+        return response
+    },
+
+    async createPoll(data: {
+        contractAddress: string
+        transactionHash: string
+        pollId: string
+        question: string
+        options: String[]
+        possibleAnswers: Number
+        endDateTime: Number
+        creatorAddress: String
+    }) {
+        const response = await fetch(`${backendUrl}/api/polls/create`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(data),
+            credentials: 'include',
+        })
+
+        if (!response.ok) {
+            throw new Error('Network response was not ok')
+        }
+
+        return response
+    },
 }

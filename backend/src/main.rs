@@ -1,10 +1,11 @@
-use api::jwt;
+use api::{jwt, poll};
 use axum::http::header::{ACCEPT, AUTHORIZATION, CONTENT_TYPE, COOKIE, SET_COOKIE};
 use axum::http::{HeaderValue, Method};
 #[allow(unused)]
 use axum::middleware;
 use axum::routing::get;
-use axum::Router;
+use axum::{Extension, Router};
+use axum_extra::extract::CookieJar;
 use tokio::net::TcpListener;
 use std::env;
 use std::sync::Arc;
@@ -13,7 +14,7 @@ use tower_http::cors::{CorsLayer, Any};
 
 use crate::models::db::DbContext;
 use crate::utils::error::{Error, Result};
-use crate::api:: {auth, middleware::main_response_mapper};
+use crate::api:: {auth, middleware::main_response_mapper, middleware::add_cookie_jar};
 use crate::app_state::AppState;
 
 mod models;
@@ -32,7 +33,8 @@ async fn main(){
     let db = DbContext::new(&mongo_uri).await.expect("Could not connect to MongoDB");
     println!("Connected to MongoDB");
 
-    let app_state = AppState::new(db.clone()).await.expect("Could not create app state");
+    let cookie_jar = CookieJar::new();
+    let app_state = AppState::new(db.clone(), cookie_jar.clone()).await.expect("Could not create app state");
 
     let listener = TcpListener::bind(format!("127.0.0.1:{}", server_port)).await.expect("Could not create listener");
 
@@ -49,7 +51,9 @@ pub fn app(app_state: Arc<AppState>, frontend_url: &str) -> Router {
         .route("/hello", get(|| async { "Hello, World!" }))
         .merge(auth::routes(app_state.clone()))
         .merge(jwt::routes(app_state.clone()))
-        .layer(middleware::map_response(main_response_mapper));
+        .merge(poll::routes(app_state.clone()))
+        .layer(middleware::map_response(main_response_mapper))
+        .layer(middleware::from_fn(add_cookie_jar));
 
     Router::new() 
         .nest("/api", api_routes)

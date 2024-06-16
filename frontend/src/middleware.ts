@@ -1,25 +1,7 @@
 import { MiddlewareConfig, NextRequest, NextResponse } from 'next/server'
 import cookie from 'cookie'
-import { jwtVerify } from 'jose'
 import { apiService } from './services/apiService/apiService'
-
-const validateJwt = async (jwt: string): Promise<Boolean> => {
-    const secret = new TextEncoder().encode('s3cr3t') // Replace with your actual secret
-    try {
-        const result = await jwtVerify(jwt, secret)
-        console.log('JWT validation result:', result)
-        return true
-    } catch (error) {
-        console.error('JWT validation failed:', error)
-        return false
-    }
-}
-
-const parseClaims = (jwt: string): Record<string, any> => {
-    const claims = jwt.split('.')[1]
-    const decodedClaims = Buffer.from(claims, 'base64').toString()
-    return JSON.parse(decodedClaims)
-}
+import { parseClaims, validateJwt } from './jwt'
 
 const tryRefreshToken = async (publicAddress: string, refresh_token: string): Promise<string | null> => {
     try {

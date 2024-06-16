@@ -1,7 +1,7 @@
 use mongodb::bson::doc;
 use serde::{Deserialize, Serialize};
 
-use super::db::DbContext;
+use super::{db::DbContext, vote::Vote};
 
 #[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct User {
@@ -9,6 +9,7 @@ pub struct User {
     #[serde(rename = "publicAddress")] pub public_address: String,
     pub username: String,
     pub nonce: String,
+    pub votes: Option<Vec<Vote>>
 }
 
 impl DbContext {

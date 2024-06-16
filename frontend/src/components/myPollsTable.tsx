@@ -1,10 +1,11 @@
-import React, { useEffect, useState } from 'react'
-import PollForm from './pollForm'
-import { useAccount, useWriteContract, useReadContract } from 'wagmi'
-import { contractAddresses, abi } from '../constants'
+import { abi, contractAddresses } from '@/constants'
 import { apiService } from '@/services/apiService/apiService'
+import { useEffect, useState } from 'react'
+import { useAccount, useReadContract } from 'wagmi'
+import PollForm from './pollForm'
+import MyPollForm from './myPollForm'
 
-const PollTable = () => {
+function MyPollsTable() {
     const account = useAccount()
     const chainId = account.chainId!
     const address = chainId in contractAddresses ? contractAddresses[chainId.toString()][0] : null
@@ -47,8 +48,8 @@ const PollTable = () => {
     } = useReadContract({
         abi,
         address: `0x${formattedContractAddress}`,
-        functionName: 'getOpenPolls',
-        args: [],
+        functionName: 'getMyPolls',
+        args: [account.address],
     })
 
     if (getOpenPollsIsPending) {
@@ -70,10 +71,14 @@ const PollTable = () => {
             }
         })
 
+        if (pollsWithState.length === 0) {
+            return <div>No polls</div>
+        }
+
         return (
             <div>
                 {pollsWithState.map((poll: any, index: number) => (
-                    <PollForm key={index} pollId={poll.pollId} voteDetails={poll.voteDetails} onVote={handleVote} />
+                    <MyPollForm key={index} pollId={poll.pollId} voteDetails={poll.voteDetails} onVote={handleVote} />
                 ))}
             </div>
         )
@@ -82,4 +87,4 @@ const PollTable = () => {
     return <div>no polls</div>
 }
 
-export default PollTable
+export default MyPollsTable

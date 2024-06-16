@@ -1,9 +1,9 @@
 'use client'
 
-import CreatePoll from '@/components/createPoll'
 import Header from '@/components/header'
-import PollTable from '@/components/pollTable'
+import MyPollsTable from '@/components/myPollsTable'
 import WalletConnectedWrapper from '@/components/walletConnectedWrapper'
+import { Suspense } from 'react'
 
 export default function Home() {
     return (
@@ -11,7 +11,9 @@ export default function Home() {
             <div>
                 <WalletConnectedWrapper>
                     <Header />
-                    <PollTable />
+                    <Suspense fallback={<p>Loading feed...</p>}>
+                        <MyPollsTable />
+                    </Suspense>
                 </WalletConnectedWrapper>
             </div>
         </>

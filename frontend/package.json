@@ -28,6 +28,7 @@
         "encoding": "^0.1.13",
         "lokijs": "^1.5.12",
         "pino-pretty": "^10.2.0",
+        "react-cookie": "^7.1.4",
         "supports-color": "^9.4.0",
         "typescript": "^5.2.2",
         "utf-8-validate": "^6.0.3"

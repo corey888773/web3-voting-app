@@ -1,0 +1,36 @@
+{
+  "language": "Solidity",
+  "sources": {
+    "contracts/PollSystem.sol": {
+      "content": "// SPDX-License-Identifier: MIT\npragma solidity ^0.8.23;\n\n// Errors\nerror PollSystem__PollLocked();\nerror PollSystem__PollEnded();\nerror PollSystem__AlreadyVoted();\nerror PollSystem__InvalidAnswersCount();\nerror PollSystem__InvalidOption();\nerror PollSystem__AlreadyLocked();\nerror PollSystem__YouAreNotTheCreator();\n\ncontract PollSystem {\n    // Types\n    enum State {\n        OPEN,\n        LOCKED\n    }\n\n    struct Poll {\n        bytes32 id;\n        string question;\n        string[] options;\n        uint64 possibleAnswers;\n        mapping(address => bool) hasVoted;\n        mapping(uint256 => uint256) votes;\n        uint256 endTime;\n        State state;\n        address creator;\n    }\n\n    // State Variables\n    bytes32[] public s_pollIds;\n    mapping(bytes32 => Poll) public s_polls;\n\n    // Functions\n    function createPoll(\n        bytes32 id,\n        string memory question,\n        string[] memory options,\n        uint64 possibleAnswers,\n        uint256 duration\n    ) public {\n        Poll storage newPoll = s_polls[id];\n        s_pollIds.push(id);\n\n        newPoll.id = id;\n        newPoll.question = question;\n        newPoll.options = options;\n        newPoll.possibleAnswers = possibleAnswers;\n        newPoll.endTime = block.timestamp + duration;\n        newPoll.state = State.OPEN;\n        newPoll.creator = msg.sender;\n    }\n\n    function vote(bytes32 pollId, uint256[] memory chosenOptions) public {\n        Poll storage poll = s_polls[pollId];\n\n        if (poll.state != State.OPEN) revert PollSystem__PollLocked();\n        if (block.timestamp >= poll.endTime) revert PollSystem__PollEnded();\n        if (poll.hasVoted[msg.sender]) revert PollSystem__AlreadyVoted();\n        if (chosenOptions.length == 0 || chosenOptions.length > poll.possibleAnswers)\n            revert PollSystem__InvalidAnswersCount();\n\n        for (uint256 i = 0; i < chosenOptions.length; i++) {\n            uint256 option = chosenOptions[i];\n            if (option >= poll.options.length) revert PollSystem__InvalidOption();\n            poll.votes[option] += 1;\n        }\n        poll.hasVoted[msg.sender] = true;\n    }\n\n    function lockPoll(bytes32 pollId) public {\n        Poll storage poll = s_polls[pollId];\n        if (msg.sender != poll.creator) revert PollSystem__YouAreNotTheCreator();\n        if (poll.state == State.LOCKED) revert PollSystem__AlreadyLocked();\n        poll.state = State.LOCKED;\n    }\n\n    // Views\n    function getPollResults(bytes32 pollId) public view returns (uint256[] memory) {\n        Poll storage poll = s_polls[pollId];\n        uint256[] memory results = new uint256[](poll.options.length);\n        for (uint256 i = 0; i < poll.options.length; i++) {\n            results[i] = poll.votes[i];\n        }\n\n        return results;\n    }\n\n    function getMyPolls(address userAddress) public view returns (bytes32[] memory) {\n        uint256 myPollsCount = 0;\n        for (uint256 i = 0; i < s_pollIds.length; i++) {\n            bytes32 pollId = s_pollIds[i];\n            if (s_polls[pollId].creator == userAddress) {\n                myPollsCount++;\n            }\n        }\n\n        bytes32[] memory myPolls = new bytes32[](myPollsCount);\n        uint256 index = 0;\n        for (uint256 i = 0; i < s_pollIds.length; i++) {\n            bytes32 pollId = s_pollIds[i];\n            if (s_polls[pollId].creator == userAddress) {\n                myPolls[index] = pollId;\n                index++;\n            }\n        }\n\n        return myPolls;\n    }\n\n    function getOpenPolls() public view returns (bytes32[] memory) {\n        uint256 openPollsCount = 0;\n        for (uint256 i = 0; i < s_pollIds.length; i++) {\n            bytes32 pollId = s_pollIds[i];\n            if (s_polls[pollId].state == State.OPEN) {\n                openPollsCount++;\n            }\n        }\n\n        bytes32[] memory openPolls = new bytes32[](openPollsCount);\n        uint256 index = 0;\n        for (uint256 i = 0; i < s_pollIds.length; i++) {\n            bytes32 pollId = s_pollIds[i];\n            if (s_polls[pollId].state == State.OPEN) {\n                openPolls[index] = pollId;\n                index++;\n            }\n        }\n\n        return openPolls;\n    }\n\n    function hasVoted(bytes32 pollId, address voter) public view returns (bool) {\n        return s_polls[pollId].hasVoted[voter];\n    }\n\n    function getPollState(bytes32 pollId) public view returns (State) {\n        return s_polls[pollId].state;\n    }\n\n    function getPoll(\n        bytes32 pollId\n    ) public view returns (bytes32, string memory, string[] memory, uint64, uint256, State, address) {\n        Poll storage poll = s_polls[pollId];\n        return (poll.id, poll.question, poll.options, poll.possibleAnswers, poll.endTime, poll.state, poll.creator);\n    }\n}\n"
+    }
+  },
+  "settings": {
+    "evmVersion": "paris",
+    "optimizer": {
+      "enabled": false,
+      "runs": 200
+    },
+    "outputSelection": {
+      "*": {
+        "*": [
+          "abi",
+          "evm.bytecode",
+          "evm.deployedBytecode",
+          "evm.methodIdentifiers",
+          "metadata",
+          "devdoc",
+          "userdoc",
+          "storageLayout",
+          "evm.gasEstimates"
+        ],
+        "": [
+          "ast"
+        ]
+      }
+    },
+    "metadata": {
+      "useLiteralContent": true
+    }
+  }
+}

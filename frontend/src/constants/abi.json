@@ -22,11 +22,6 @@
   {
     "type": "error",
     "inputs": [],
-    "name": "PollSystem__NotYetEnded"
-  },
-  {
-    "type": "error",
-    "inputs": [],
     "name": "PollSystem__PollEnded"
   },
   {
@@ -35,8 +30,21 @@
     "name": "PollSystem__PollLocked"
   },
   {
+    "type": "error",
+    "inputs": [],
+    "name": "PollSystem__YouAreNotTheCreator"
+  },
+  {
     "type": "function",
     "inputs": [
+      {
+        "name": "id",
+        "type": "bytes32",
+        "baseType": "bytes32",
+        "components": null,
+        "arrayLength": null,
+        "arrayChildren": null
+      },
       {
         "name": "question",
         "type": "string",
@@ -86,20 +94,55 @@
   },
   {
     "type": "function",
+    "inputs": [
+      {
+        "name": "userAddress",
+        "type": "address",
+        "baseType": "address",
+        "components": null,
+        "arrayLength": null,
+        "arrayChildren": null
+      }
+    ],
+    "name": "getMyPolls",
+    "constant": true,
+    "outputs": [
+      {
+        "name": "",
+        "type": "bytes32[]",
+        "baseType": "array",
+        "components": null,
+        "arrayLength": -1,
+        "arrayChildren": {
+          "name": "",
+          "type": "bytes32",
+          "baseType": "bytes32",
+          "components": null,
+          "arrayLength": null,
+          "arrayChildren": null
+        }
+      }
+    ],
+    "stateMutability": "view",
+    "payable": false,
+    "gas": null
+  },
+  {
+    "type": "function",
     "inputs": [],
     "name": "getOpenPolls",
     "constant": true,
     "outputs": [
       {
         "name": "",
-        "type": "uint256[]",
+        "type": "bytes32[]",
         "baseType": "array",
         "components": null,
         "arrayLength": -1,
         "arrayChildren": {
           "name": "",
-          "type": "uint256",
-          "baseType": "uint256",
+          "type": "bytes32",
+          "baseType": "bytes32",
           "components": null,
           "arrayLength": null,
           "arrayChildren": null
@@ -114,9 +157,9 @@
     "type": "function",
     "inputs": [
       {
-        "name": "pollIndex",
-        "type": "uint256",
-        "baseType": "uint256",
+        "name": "pollId",
+        "type": "bytes32",
+        "baseType": "bytes32",
         "components": null,
         "arrayLength": null,
         "arrayChildren": null
@@ -125,6 +168,14 @@
     "name": "getPoll",
     "constant": true,
     "outputs": [
+      {
+        "name": "",
+        "type": "bytes32",
+        "baseType": "bytes32",
+        "components": null,
+        "arrayLength": null,
+        "arrayChildren": null
+      },
       {
         "name": "",
         "type": "string",
@@ -171,6 +222,14 @@
         "components": null,
         "arrayLength": null,
         "arrayChildren": null
+      },
+      {
+        "name": "",
+        "type": "address",
+        "baseType": "address",
+        "components": null,
+        "arrayLength": null,
+        "arrayChildren": null
       }
     ],
     "stateMutability": "view",
@@ -181,9 +240,9 @@
     "type": "function",
     "inputs": [
       {
-        "name": "pollIndex",
-        "type": "uint256",
-        "baseType": "uint256",
+        "name": "pollId",
+        "type": "bytes32",
+        "baseType": "bytes32",
         "components": null,
         "arrayLength": null,
         "arrayChildren": null
@@ -216,9 +275,9 @@
     "type": "function",
     "inputs": [
       {
-        "name": "pollIndex",
-        "type": "uint256",
-        "baseType": "uint256",
+        "name": "pollId",
+        "type": "bytes32",
+        "baseType": "bytes32",
         "components": null,
         "arrayLength": null,
         "arrayChildren": null
@@ -244,9 +303,9 @@
     "type": "function",
     "inputs": [
       {
-        "name": "pollIndex",
-        "type": "uint256",
-        "baseType": "uint256",
+        "name": "pollId",
+        "type": "bytes32",
+        "baseType": "bytes32",
         "components": null,
         "arrayLength": null,
         "arrayChildren": null
@@ -280,9 +339,9 @@
     "type": "function",
     "inputs": [
       {
-        "name": "pollIndex",
-        "type": "uint256",
-        "baseType": "uint256",
+        "name": "pollId",
+        "type": "bytes32",
+        "baseType": "bytes32",
         "components": null,
         "arrayLength": null,
         "arrayChildren": null
@@ -307,9 +366,45 @@
         "arrayChildren": null
       }
     ],
-    "name": "m_polls",
+    "name": "s_pollIds",
     "constant": true,
     "outputs": [
+      {
+        "name": "",
+        "type": "bytes32",
+        "baseType": "bytes32",
+        "components": null,
+        "arrayLength": null,
+        "arrayChildren": null
+      }
+    ],
+    "stateMutability": "view",
+    "payable": false,
+    "gas": null
+  },
+  {
+    "type": "function",
+    "inputs": [
+      {
+        "name": "",
+        "type": "bytes32",
+        "baseType": "bytes32",
+        "components": null,
+        "arrayLength": null,
+        "arrayChildren": null
+      }
+    ],
+    "name": "s_polls",
+    "constant": true,
+    "outputs": [
+      {
+        "name": "id",
+        "type": "bytes32",
+        "baseType": "bytes32",
+        "components": null,
+        "arrayLength": null,
+        "arrayChildren": null
+      },
       {
         "name": "question",
         "type": "string",
@@ -341,6 +436,14 @@
         "components": null,
         "arrayLength": null,
         "arrayChildren": null
+      },
+      {
+        "name": "creator",
+        "type": "address",
+        "baseType": "address",
+        "components": null,
+        "arrayLength": null,
+        "arrayChildren": null
       }
     ],
     "stateMutability": "view",
@@ -351,9 +454,9 @@
     "type": "function",
     "inputs": [
       {
-        "name": "pollIndex",
-        "type": "uint256",
-        "baseType": "uint256",
+        "name": "pollId",
+        "type": "bytes32",
+        "baseType": "bytes32",
         "components": null,
         "arrayLength": null,
         "arrayChildren": null
