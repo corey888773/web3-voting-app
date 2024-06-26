@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import { useCookies } from 'react-cookie'
 import { useDisconnect } from 'wagmi'
 import { ConnectButton } from '@rainbow-me/rainbowkit'
-import './navbar.css'
+import './styles/navbar.css'
 import { usePathname } from 'next/navigation'
 
 export default function Navbar() {

@@ -3,14 +3,17 @@
 import Header from '@/components/header'
 import HistoryTable from '@/components/historyTable'
 import WalletConnectedWrapper from '@/components/walletConnectedWrapper'
+import './page.css'
 
 export default function Home() {
     return (
         <>
-            <div>
+            <div className="page-container">
                 <WalletConnectedWrapper>
                     <Header />
-                    <HistoryTable />
+                    <div className="history-content">
+                        <HistoryTable />
+                    </div>
                 </WalletConnectedWrapper>
             </div>
         </>

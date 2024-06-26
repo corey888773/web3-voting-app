@@ -2,6 +2,7 @@
 
 import Header from '@/components/header'
 import { useAccount, useConnect, useDisconnect } from 'wagmi'
+import './page.css'
 
 function App() {
     const account = useAccount()
@@ -9,9 +10,11 @@ function App() {
     const { disconnect } = useDisconnect()
 
     return (
-        <div>
+        <div className="app-container">
             <Header />
-            <h1>Connect Wallet to get access to polls</h1>
+            <div className="content">
+                <h1>Connect Wallet to get access to polls</h1>
+            </div>
         </div>
     )
 }

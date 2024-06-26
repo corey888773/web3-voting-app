@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import { useCookies } from 'react-cookie'
 import { useAccount } from 'wagmi'
 import Navbar from './navbar'
-import './header.css'
+import './styles/header.css'
 
 export default function Header() {
     const [cookies, setCookie] = useCookies(['jwt'])
