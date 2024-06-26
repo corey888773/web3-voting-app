@@ -31,7 +31,7 @@
 .create-poll-form button,
 .create-poll-form input[type='submit'] {
     padding: 10px 20px;
-    background-color: #3898ff;
+    background-color: #343a40;
     color: white;
     border: none;
     border-radius: 4px;
@@ -42,7 +42,7 @@
 
 .create-poll-form button:hover,
 .create-poll-form input[type='submit']:hover {
-    background-color: #1e6ed4;
+    background-color: #1e1e1e;
 }
 
 .create-poll-form .option-label {

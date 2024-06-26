@@ -55,10 +55,6 @@ nav ul li.active a {
     border-bottom: 2px solid #ffffff;
 }
 
-.connect-wallet:hover {
-    background-color: #0056b3;
-}
-
 @media (max-width: 768px) {
     nav {
         flex-direction: column;

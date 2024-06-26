@@ -33,13 +33,13 @@
 }
 
 .form-input:focus {
-    border-color: #3898ff;
+    border-color: #343a40;
     outline: none;
 }
 
 .form-submit {
     padding: 10px 15px;
-    background-color: #3898ff;
+    background-color: #343a40;
     color: #ffffff;
     border: none;
     border-radius: 4px;
@@ -48,5 +48,5 @@
 }
 
 .form-submit:hover {
-    background-color: #1e6ed4;
+    background-color: #1e1e1e;
 }
