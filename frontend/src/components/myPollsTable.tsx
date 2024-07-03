@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { useAccount, useReadContract } from 'wagmi'
 import PollForm from './pollForm'
 import MyPollForm from './myPollForm'
+import './styles/myPollsTable.css'
 
 function MyPollsTable() {
     const account = useAccount()
@@ -76,15 +77,17 @@ function MyPollsTable() {
         }
 
         return (
-            <div>
+            <div className="my-polls-table">
                 {pollsWithState.map((poll: any, index: number) => (
-                    <MyPollForm key={index} pollId={poll.pollId} voteDetails={poll.voteDetails} onVote={handleVote} />
+                    <div key={index} className="my-poll-item">
+                        <MyPollForm pollId={poll.pollId} voteDetails={poll.voteDetails} onVote={handleVote} />
+                    </div>
                 ))}
             </div>
         )
     }
 
-    return <div>no polls</div>
+    return <div>No polls</div>
 }
 
 export default MyPollsTable

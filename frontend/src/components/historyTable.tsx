@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react'
-import PollForm from './pollForm'
-import { useAccount, useWriteContract, useReadContract } from 'wagmi'
+import { useAccount } from 'wagmi'
 import { contractAddresses, abi } from '../constants'
 import { apiService } from '@/services/apiService/apiService'
 import HistoryVote from './historyVote'
+import './styles/historyTable.css'
 
 const HistoryTable = () => {
     const account = useAccount()
@@ -21,7 +21,12 @@ const HistoryTable = () => {
                 const json = await response.json()
                 console.log(json)
 
-                setPolls(json)
+                // Usunięcie zduplikowanych ankiet na podstawie pollId
+                const uniquePolls = Array.from(new Set(json.map((poll: any) => poll.pollId))).map((pollId) => {
+                    return json.find((poll: any) => poll.pollId === pollId)
+                })
+
+                setPolls(uniquePolls)
             } catch (error: any) {
                 console.error(error.message)
             }
@@ -34,14 +39,14 @@ const HistoryTable = () => {
 
     if (polls.length > 0 && polls[0].pollId)
         return (
-            <div>
+            <div className="history-table">
                 {polls.map((poll: any, index: number) => (
                     <HistoryVote key={index} voteDetails={poll} />
                 ))}
             </div>
         )
 
-    return <div>no polls</div>
+    return <div className="no-polls">No polls</div>
 }
 
 export default HistoryTable

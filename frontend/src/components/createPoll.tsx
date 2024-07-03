@@ -3,6 +3,7 @@ import { useAccount, useWriteContract } from 'wagmi'
 import { contractAddresses, abi } from '../constants'
 import { apiService } from '@/services/apiService/apiService'
 import { randomBytes } from 'crypto'
+import './styles/createPoll.css'
 
 export default function CreatePoll() {
     const account = useAccount()
@@ -103,13 +104,13 @@ export default function CreatePoll() {
     }, [isSuccess])
 
     return (
-        <form onSubmit={handleSubmit}>
+        <form className="create-poll-form" onSubmit={handleSubmit}>
             <label>
                 Question:
                 <input type="text" value={question} onChange={handleQuestionChange} />
             </label>
             {options.map((option, index) => (
-                <label key={index}>
+                <label key={index} className="option-label">
                     Option {index + 1}:
                     <input type="text" value={option} onChange={handleOptionChange(index)} />
                 </label>

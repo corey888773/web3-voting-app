@@ -5,6 +5,7 @@ import { ErrorResponse, NonceResponse } from '@/services/apiService/responses'
 import Header from '@/components/header'
 import { apiService } from '@/services/apiService/apiService'
 import { GetServerSideProps } from 'next'
+import './login.css'
 
 export default function LoginComponent() {
     const account = useAccount()
@@ -76,6 +77,10 @@ export default function LoginComponent() {
     return (
         <div>
             <Header />
+            <div className="login-container">
+                <div className="login-title">Welcome to Wagmi</div>
+                <div className="login-subtitle">To continue, please connect your wallet and login</div>
+            </div>
         </div>
     )
 }

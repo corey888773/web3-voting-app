@@ -3,6 +3,7 @@ import PollForm from './pollForm'
 import { useAccount, useWriteContract, useReadContract } from 'wagmi'
 import { contractAddresses, abi } from '../constants'
 import { apiService } from '@/services/apiService/apiService'
+import './styles/pollTable.css'
 
 const PollTable = () => {
     const account = useAccount()
@@ -71,15 +72,17 @@ const PollTable = () => {
         })
 
         return (
-            <div>
+            <div className="poll-table">
                 {pollsWithState.map((poll: any, index: number) => (
-                    <PollForm key={index} pollId={poll.pollId} voteDetails={poll.voteDetails} onVote={handleVote} />
+                    <div key={index} className="poll-item">
+                        <PollForm pollId={poll.pollId} voteDetails={poll.voteDetails} onVote={handleVote} />
+                    </div>
                 ))}
             </div>
         )
     }
 
-    return <div>no polls</div>
+    return <div>No polls</div>
 }
 
 export default PollTable

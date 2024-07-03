@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { useCookies } from 'react-cookie'
 import { useAccount } from 'wagmi'
 import Navbar from './navbar'
+import './styles/header.css'
 
 export default function Header() {
     const [cookies, setCookie] = useCookies(['jwt'])
@@ -37,8 +38,9 @@ export default function Header() {
     return (
         <div>
             <Navbar />
-            <ConnectButton />
-            <h1>{username ? `Welcome, ${username}` : 'Welcome, Guest'}</h1>
+            <div className="header">
+                <h1 className="header-title">{username ? `Welcome, ${username}` : 'Welcome, Guest'}</h1>
+            </div>
         </div>
     )
 }

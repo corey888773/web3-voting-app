@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react'
 import { apiService } from '@/services/apiService/apiService'
 import { useCookies } from 'react-cookie'
 import { validateJwt } from '@/jwt'
+import './styles/historyVote.css'
 
 interface HistoryVoteProps {
     voteDetails: { pollId: string; transactionHash: string; answers: Number[]; contractAddress: string }
@@ -91,6 +92,7 @@ export default function HistoryVote({ voteDetails }: HistoryVoteProps) {
                     </div>
                 ))}
                 <p>EndDate: {endDate}</p>
+                <hr className="poll-divider" />
             </div>
         )
     }
